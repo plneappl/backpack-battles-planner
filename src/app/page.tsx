@@ -1,6 +1,6 @@
 "use client"
 import { BoardAsGrid } from './Board'
-import { observe, createEmptyGrid, setItem, getGrid } from './Game'
+import { observe, setItem, getGrid } from './Game'
 import { useEffect, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'

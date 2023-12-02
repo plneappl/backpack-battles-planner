@@ -3,9 +3,10 @@ import Coord from "./Coord";
 import { useDrop } from "react-dnd";
 import { DragDropTypes } from "./DragDropTypes";
 import Item from "./Item";
+import Grid from "./Grid";
 
 type BoardArg = {
-  board: (ItemRef | null)[][],
+  board: Grid,
   onDrop: (item: Item, coord: Coord) => void
 }
 
@@ -21,38 +22,43 @@ function BoardSquare({ board, onDrop }: BoardArg, coord: Coord) {
       onDrop(item as Item, coord)
     }
   }))
-  const item = coord.getFrom(board)
-  if (item != null) {
-    let columnCount = item.item.shape[0].length
-    let rowCount = item.item.shape.length
+  let item = board.getItem(coord)
+  let itemImg = item != null? renderImage(item, null): null
+  let bag = board.getBag(coord)
+  let bagImg = bag != null? renderImage(bag, itemImg) : itemImg
+  return BoardSquareBorder(drop, coord, bagImg)
+}
 
-    let itemWidth = 5 * columnCount
-    let itemHeight = 5 * rowCount
+function renderImage(item: ItemRef, child: any | null) {
+  let columnCount = item.item.shape[0].length
+  let rowCount = item.item.shape.length
 
-    return (<div
-      ref={drop}
-      key={`item-grid-${coord.toKeyPart()}`}
-      style={{
-        border: '1px solid',
-        margin: "-0.5px",
-        backgroundImage: `url(/Items/${item.item.filename})`,
-        backgroundSize: `${itemWidth}em ${itemHeight}em`,
-        backgroundPosition: `-${5 * item.coord.x}em -${5 * item.coord.y}em`,
-      }} />)
-  } else {
-    return (<div
-      ref={drop}
-      key={`item-grid-${coord.toKeyPart()}`}
-      style={{
-        border: '1px solid',
-        margin: "-0.5px",
-      }} />)
-  }
+  let itemWidth = 5 * columnCount
+  let itemHeight = 5 * rowCount
+
+  return (<div style={{
+    width: '100%',
+    height: '100%',
+    backgroundColor: "transparent",
+    backgroundImage: `url(/Items/${item.item.filename})`,
+    backgroundSize: `${itemWidth}em ${itemHeight}em`,
+    backgroundPosition: `-${5 * item.coord.x}em -${5 * item.coord.y}em`,
+  }}>{child}</div>)
+}
+
+function BoardSquareBorder(drop: any, coord: Coord, child: any | null) {
+  return (<div
+    ref={drop}
+    key={`item-grid-${coord.toKeyPart()}`}
+    style={{
+      border: '1px solid',
+      margin: "-0.5px",
+    }}>{child}</div>)
 }
 
 function* BoardGen(args: BoardArg) {
-  for (let y = 0; y < args.board.length; y++) {
-    const row = args.board[y];
+  for (let y = 0; y < args.board.items.length; y++) {
+    const row = args.board.items[y];
     for (let x = 0; x < row.length; x++) {
       yield BoardSquare(args, Coord.mk({ x, y }))
     }
@@ -60,8 +66,8 @@ function* BoardGen(args: BoardArg) {
 }
 
 export function BoardAsGrid({ board, onDrop }: BoardArg) {
-  let columnCount = board[0].length
-  let rowCount = board.length
+  let columnCount = board.items[0].length
+  let rowCount = board.items.length
 
   return (<div className="grid-container" style={{
     gridTemplateColumns: `repeat(${columnCount}, 5em)`,

@@ -5,13 +5,15 @@ interface IItem {
   id: number
   filename: string
   shape: boolean[][]
+  isBag: boolean
 }
 
 export default class Item extends Object {
   constructor(
     public id: number,
     public filename: string,
-    public shape: boolean[][]
+    public shape: boolean[][],
+    public isBag: boolean
   ) { super() }
 
   override toString() {
@@ -19,7 +21,7 @@ export default class Item extends Object {
   }
 
   static mk(item: IItem) {
-    return new Item(item.id, item.filename, item.shape)
+    return new Item(item.id, item.filename, item.shape, item.isBag)
   }
 
   public getSize(): Size {

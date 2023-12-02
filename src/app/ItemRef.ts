@@ -7,7 +7,7 @@ export default class ItemRef {
     public coord: Coord
   ) { }
 
-  public hasCollision() {
-    return this.coord.getFrom(this.item.shape)
+  public hasCollision(withOther: ItemRef | null) {
+    return this.coord.getFrom(this.item.shape) && withOther != null && this.item.isBag == withOther.item.isBag
   }
 }
