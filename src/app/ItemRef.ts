@@ -6,4 +6,8 @@ export default class ItemRef {
     public item: Item,
     public coord: Coord
   ) { }
+
+  public hasCollision() {
+    return this.coord.getFrom(this.item.shape)
+  }
 }

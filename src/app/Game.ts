@@ -3,13 +3,19 @@ import { Grid } from "./Grid"
 import Item from "./Item"
 import { itemData } from "./ItemJson"
 import ItemRef from "./ItemRef"
+import Size from "./Size"
 
 const rowCount = 7
 const columnCount = 8
-const boardSize = new Coord(columnCount, rowCount)
+const boardSize = new Size(columnCount, rowCount)
 
 let observer: ((grid: Grid) => void) = (it) => { }
 let theGrid = createEmptyGrid()
+//setItem(itemData[7], new Coord(1, 1))
+
+export function getGrid(): Grid {
+  return theGrid
+}
 
 export function createEmptyGrid(): Grid {
   return [...Array(rowCount).keys()].map(it => [...Array(columnCount).keys()].map(_ => null))
@@ -22,28 +28,35 @@ export function observe(receive: (grid: (ItemRef | null)[][]) => void) {
 
 export function setItem(item: Item, coord: Coord) {
   let grid = [...theGrid]
-  let {x: width, y: height} = item.getSize()
-  if (height + coord.y > rowCount) {
-    console.log(`coord ${coord} OOB! Height: ${height}`)
+  let itemSize = item.getSize()
+  let itemBB = itemSize.plus(coord)
+  if(itemBB.isOutside(boardSize)) {
+    console.log(`coord ${coord} OOB! Size: ${itemSize} results in: ${itemBB} outside board: ${boardSize}`)
     return
   }
-  if (width + coord.x > columnCount) {
-    console.log(`coord ${coord} OOB! Width: ${width}`)
-    return
-  }
-  for (const itemCoord of iterateCoords(width, height)) {
+
+  for (const itemCoord of iterateCoords(itemSize)) {
+    let newItem = new ItemRef(item, itemCoord)
     let gridCoord = itemCoord.plus(coord)
     let oldItem = gridCoord.getFrom(grid)
-    if (oldItem != null && oldItem.coord.getFrom(oldItem.item.shape)) {
-      removeItem(grid, oldItem, gridCoord, item)
+    if (oldItem != null) {
+      let isOverlapping = oldItem.hasCollision() && newItem.hasCollision()
+      let isDifferentItem = oldItem.item.id != newItem.item.id
+      let isDifferentRelativeCoord = !Coord.equals(oldItem.coord, itemCoord)
+      if (isOverlapping && (isDifferentItem || isDifferentRelativeCoord)) {
+        removeItem(grid, oldItem, gridCoord, item)
+      }
     }
-    gridCoord.setIn(grid, new ItemRef(item, itemCoord))
+    oldItem = gridCoord.getFrom(grid)
+    if(oldItem == null || !oldItem.hasCollision()) {
+      gridCoord.setIn(grid, newItem)
+    }
   }
   theGrid = grid
   emitChange()
 }
 
-function* iterateCoords(width: number, height: number) {
+function* iterateCoords({width, height}: Size) {
   for (let x = 0; x < width; x++) {
     for (let y = 0; y < height; y++) {
       yield new Coord(x, y)
@@ -51,21 +64,21 @@ function* iterateCoords(width: number, height: number) {
   }
 }
 
-export function removeItem(grid: Grid, item: ItemRef, coord: Coord, unlessIs: Item) {
-  let width = item.item.shape[0].length
-  let height = item.item.shape.length
+function removeItem(grid: Grid, itemToRemove: ItemRef, coord: Coord, newItem: Item | null) {
+  let itemSize = itemToRemove.item.getSize()
 
-  for (let x = 0; x < width; x++) {
-    for (let y = 0; y < height; y++) {
-      let currentItem = grid[coord.y + y - item.coord.y][coord.x + x - item.coord.y]
-      if (currentItem == null) {
-        continue
-      }
-      if (currentItem.item.id == item.item.id && currentItem.coord.x == x) {
-        grid[coord.y + y - item.coord.y][coord.x + x - item.coord.y] = null
-      }
+  for (const itemCoord of iterateCoords(itemSize)) {
+    let gridCoord = coord.minus(itemToRemove.coord).plus(itemCoord)
+    let currentItem = gridCoord.getFrom(grid)
+    if (currentItem == null) {
+      continue
     }
-
+    if(newItem != null && currentItem.item.id == newItem.id && Coord.equals(currentItem.coord, itemCoord)) {
+      gridCoord.setIn(grid, null)
+    }
+    else if (currentItem.item.id == itemToRemove.item.id) {
+      gridCoord.setIn(grid, null)
+    }
   }
 }
 

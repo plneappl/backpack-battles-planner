@@ -14,8 +14,16 @@ export default class Coord extends Object {
     return new Coord(x, y)
   }
 
+  static equals(c1: Coord, c2: Coord) {
+    return c1.x == c2.x && c1.y == c2.y
+  }
+
   public override toString() {
     return `Coord(x=${this.x}, y=${this.y})`
+  }
+
+  public toKeyPart() {
+    return `${this.x}-${this.y}`
   }
 
   public getFrom<T>(arr: T[][]): T {

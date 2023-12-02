@@ -14,15 +14,14 @@ function Board(args: BoardArg) {
 }
 
 function BoardSquare({ board, onDrop }: BoardArg, coord: Coord) {
-  const { x, y } = coord
   const [, drop] = useDrop(() => ({
     accept: DragDropTypes.ITEM,
     drop: (item, monitor) => {
-      console.log(`dropped ${item} / ${monitor.getItem()} at ${x}, ${y}`)
+      console.log(`dropped ${item} / ${monitor.getItem()} at ${coord}`)
       onDrop(item as Item, coord)
     }
-  }), [x, y])
-  const item = board[y][x]
+  }))
+  const item = coord.getFrom(board)
   if (item != null) {
     let columnCount = item.item.shape[0].length
     let rowCount = item.item.shape.length
@@ -32,18 +31,18 @@ function BoardSquare({ board, onDrop }: BoardArg, coord: Coord) {
 
     return (<div
       ref={drop}
-      key={`item-grid-${x}-${y}`}
+      key={`item-grid-${coord.toKeyPart()}`}
       style={{
         border: '1px solid',
         margin: "-0.5px",
         backgroundImage: `url(/Items/${item.item.filename})`,
         backgroundSize: `${itemWidth}em ${itemHeight}em`,
-        backgroundPosition: `${5 * item.coord.x}em ${5 * item.coord.y}em`,
+        backgroundPosition: `-${5 * item.coord.x}em -${5 * item.coord.y}em`,
       }} />)
   } else {
     return (<div
       ref={drop}
-      key={`item-grid-${x}-${y}`}
+      key={`item-grid-${coord.toKeyPart()}`}
       style={{
         border: '1px solid',
         margin: "-0.5px",

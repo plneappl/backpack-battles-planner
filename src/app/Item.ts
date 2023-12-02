@@ -1,4 +1,5 @@
 import Coord from "./Coord"
+import Size from "./Size"
 
 interface IItem {
   id: number
@@ -21,9 +22,9 @@ export default class Item extends Object {
     return new Item(item.id, item.filename, item.shape)
   }
 
-  public getSize(): Coord {
+  public getSize(): Size {
     let columnCount = this.shape[0].length
     let rowCount = this.shape.length
-    return new Coord(columnCount, rowCount)
+    return new Size(columnCount, rowCount)
   }
 }

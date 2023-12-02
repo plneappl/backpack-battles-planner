@@ -1,6 +1,6 @@
 "use client"
 import { BoardAsGrid } from './Board'
-import { observe, createEmptyGrid, setItem } from './Game'
+import { observe, createEmptyGrid, setItem, getGrid } from './Game'
 import { useEffect, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -8,9 +8,7 @@ import ItemList from './ItemList'
 
 
 export default function Home() {
-  let emptyGrid = createEmptyGrid()
-
-  const [grid, setGrid] = useState(emptyGrid)
+  const [grid, setGrid] = useState(getGrid())
   useEffect(() => observe((grid) => {
     console.log(`received ${grid}`)
     setGrid(grid)
