@@ -3,7 +3,7 @@ import Grid from "./Grid"
 import Item from "./Item"
 import { itemData } from "./ItemJson"
 import ItemRef, { ItemRefCollection } from "./ItemRef"
-import Rotation from "./Rotation"
+import Rotation, { Rotations } from "./Rotation"
 import Size from "./Size"
 
 const rowCount = 7
@@ -12,7 +12,7 @@ const boardSize = new Size(columnCount, rowCount)
 
 let observer: (grid: Grid) => void = (it) => { }
 let theGrid = Grid.mk(boardSize)
-//setItem(itemData[7], new Coord(1, 1))
+//setItem(itemData["other"][7], new Coord(1, 1), Rotations.UP)
 
 export function getGrid(): Grid {
   return theGrid
@@ -26,14 +26,14 @@ export function observe(receive: (grid: Grid) => void) {
 export function setItem(item: Item, coord: Coord, rotation: Rotation) {
   let grid = theGrid.copy()
   let itemRefCollection = new ItemRefCollection()
-  let itemSize = item.getSize()
+  let itemSize = item.getSize().rotatedSize(rotation)
   let itemBB = itemSize.plus(coord)
   if (itemBB.isOutside(boardSize)) {
     console.log(`coord ${coord} OOB! Size: ${itemSize} results in: ${itemBB} outside board: ${boardSize}`)
     return
   }
 
-  for (const [gridOffset, itemCoord] of itemSize.rotatedSize(rotation).iterateCoordsAssoc(rotation)) {
+  for (const [gridOffset, itemCoord] of itemSize.iterateCoordsAssoc(rotation)) {
     let newItem = new ItemRef(item, itemCoord, rotation, itemRefCollection)
     let gridCoord = coord.plus(gridOffset)
     let oldItem = grid.getItemOrBag(item.isBag, gridCoord)
@@ -54,7 +54,7 @@ export function setItem(item: Item, coord: Coord, rotation: Rotation) {
   emitChange()
 }
 
-function removeItem(grid: Grid, itemToRemove: ItemRef, coord: Coord, newItem: Item | null) {
+export function removeItem(grid: Grid, itemToRemove: ItemRef, coord: Coord, newItem: Item | null) {
   const itemRefs = new Set<ItemRef | null>(itemToRemove.itemRefCollection?.refs ?? [])
   const isBag = itemToRemove.item.isBag
 
@@ -65,6 +65,6 @@ function removeItem(grid: Grid, itemToRemove: ItemRef, coord: Coord, newItem: It
   }
 }
 
-function emitChange() {
+export function emitChange() {
   observer(theGrid)
 }
