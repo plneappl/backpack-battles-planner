@@ -24,6 +24,6 @@ export default function ItemWithGrid(item: Item) {
 
   return RenderItemSolo("item-", item, (c) => DragHandlers.mk({
     onPickup: () => new ItemRef(item, c, Rotations.UP),
-    onDrop: (e) => { }
+    onDrop: null
   }))
 } 

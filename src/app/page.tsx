@@ -3,7 +3,7 @@ import { BoardAsGrid, BoardSquareBorder, DragHandlers, DropdownHandler, PickupHa
 import { observe, setItem, getGrid } from './Game'
 import { useEffect, useState } from 'react'
 import ItemList from './ItemList'
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core'
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, pointerWithin } from '@dnd-kit/core'
 import { DragDropPayload } from './DragDropTypes'
 import Coord from './Coord'
 
@@ -18,24 +18,32 @@ export default function Home() {
   const handleDragStart = (e: DragStartEvent) => {
     const provider = e.active.data.current?.payload as PickupHandler
     const pickedItem = provider?.()
-    setDraggedItem(pickedItem? {item: pickedItem}: null)
+    setDraggedItem(pickedItem ? { item: pickedItem } : null)
   }
   const handleDragEnd = (e: DragEndEvent) => {
     console.log("drag end")
     const payload = dragPayload
     const onDrop = e.over?.data.current?.payload as DropdownHandler
     setDraggedItem(null)
-    if(payload != null && onDrop != null) {
+    if (payload != null && onDrop != null) {
       onDrop({
         droppedItem: payload.item
       })
-    } 
+    }
   }
   return (
-    <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <DndContext
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      collisionDetection={pointerWithin}
+    >
       <Main />
       <DragOverlay className='wrapper'>
-        {dragPayload ? (RenderItemSolo("dragboard-", dragPayload.item.item, (c) => new DragHandlers(null, null))) : null}
+        {dragPayload ? (<div style={{
+          margin: dragPayload.item.negativeMargins()
+        }}>
+          {RenderItemSolo("dragboard-", dragPayload.item.item, (c) => new DragHandlers(null, null))}
+        </div>) : null}
       </DragOverlay>
     </DndContext>
   )

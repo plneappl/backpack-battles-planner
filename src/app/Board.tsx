@@ -56,13 +56,16 @@ export function BoardAsGrid({ board, boardId, onDrop, drawBoxOnNoCollision, drag
   let columnCount = board.items[0].length
   let rowCount = board.items.length
 
-  return (<div className="grid-container" style={{
-    gridTemplateColumns: `repeat(${columnCount}, 5em)`,
-    gridTemplateRows: `repeat(${rowCount}, 5em)`,
-    gridAutoColumns: `5em`,
-    gridAutoRows: `5em`,
-    gridAutoFlow: 'column',
-  }}>
+  return (<div 
+    className="grid-container"
+    key={boardId + "-grid"}
+    style={{
+      gridTemplateColumns: `repeat(${columnCount}, 5em)`,
+      gridTemplateRows: `repeat(${rowCount}, 5em)`,
+      gridAutoColumns: `5em`,
+      gridAutoRows: `5em`,
+      gridAutoFlow: 'column',
+    }}>
     <Board
       board={board}
       onDrop={onDrop}
@@ -79,6 +82,7 @@ export function RenderItemSolo(id: string, item: Item, dragHandlers: DragHandler
   }
 
   return <BoardAsGrid
+    key={id + "-grid-solo"}
     board={grid}
     boardId={`${id}-${item.id}`}
     onDrop={() => { }}
@@ -113,7 +117,7 @@ export function renderImage(item: ItemRef, child: React.JSX.Element | null) {
     className="wrapper"
     style={{
       backgroundColor: "transparent",
-      backgroundImage: `url(/Items/${item.item.filename})`,
+      backgroundImage: `url("/Items/${item.item.filename}")`,
       backgroundSize: `${itemWidth}em ${itemHeight}em`,
       backgroundPosition: `-${5 * item.coord.x}em -${5 * item.coord.y}em`,
     }}>{child}</div>)
@@ -140,7 +144,7 @@ export function BoardSquareBorder(id: string, dragHandlers: DragHandlers, coord:
 
 function DraggableSquare(onPickup: PickupHandler, id: string, item: ItemRef, child: React.JSX.Element | null) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: 'drag-' + id,
+    id: 'drag-' + id + '-' + item.coord.toKeyPart(),
     data: {
       payload: onPickup,
     }
