@@ -6,11 +6,19 @@ import ItemList from './ItemList'
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, pointerWithin } from '@dnd-kit/core'
 import { DragDropPayload } from './DragDropTypes'
 import Coord from './Coord'
+import ItemRef from './ItemRef'
 
 const keys = {
   KEY_R: {
     key: 'R'
   }
+}
+
+type DragDropPayloadNullable = DragDropPayload | null
+
+interface MainArgs {
+  dragPayload: DragDropPayloadNullable
+  setDraggedItem: (_: DragDropPayloadNullable) => void
 }
 
 export default function Home() {
@@ -37,19 +45,19 @@ export default function Home() {
       onDragEnd={handleDragEnd}
       collisionDetection={pointerWithin}
     >
-      <Main />
+      <Main dragPayload={dragPayload} setDraggedItem={setDraggedItem}/>
       <DragOverlay className='wrapper'>
         {dragPayload ? (<div style={{
           margin: dragPayload.item.negativeMargins()
         }}>
-          {RenderItemSolo("dragboard-", dragPayload.item.item, (c) => new DragHandlers(null, null))}
+          {RenderItemSolo("dragboard-", dragPayload.item.item, dragPayload.item.rotation, (c) => new DragHandlers(null, null))}
         </div>) : null}
       </DragOverlay>
     </DndContext>
   )
 }
 
-function Main() {
+function Main({dragPayload, setDraggedItem}: MainArgs) {
   const [grid, setGrid] = useState(getGrid())
   useEffect(() => {
     observe((grid) => {
@@ -57,9 +65,12 @@ function Main() {
     })
 
     const keyEventListener = ({ key }: KeyboardEvent): void => {
-      console.log("key pressed", key)
-      if (key == keys.KEY_R.key) {
-        console.log("should rotate now")
+      if (key.toUpperCase() == keys.KEY_R.key && dragPayload != null) {
+        const item = dragPayload.item
+        const nextRot = item.rotation.next()
+        setDraggedItem({
+          item: new ItemRef(item.item, item.coord, nextRot)
+        })
       }
     }
     window.addEventListener('keydown', keyEventListener)

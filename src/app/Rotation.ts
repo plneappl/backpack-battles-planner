@@ -1,6 +1,7 @@
 
 export default interface Rotation {
   next(): Rotation
+  inverse(): Rotation
   cssString(): string
 }
 
@@ -23,6 +24,22 @@ class RotationImpl implements Rotation {
     }
     
     return Rotations.UP
+  }
+
+  inverse(): Rotation {
+    if(this == Rotations.UP) {
+      return Rotations.DOWN
+    }
+    
+    if(this == Rotations.RIGHT) {
+      return Rotations.LEFT
+    }
+    
+    if(this == Rotations.DOWN) {
+      return Rotations.UP
+    }
+    
+    return Rotations.RIGHT
   }
 
   cssString(): string {

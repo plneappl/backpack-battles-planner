@@ -32,9 +32,9 @@ export function setItem(item: Item, coord: Coord, rotation: Rotation) {
     return
   }
 
-  for (const itemCoord of itemSize.iterateCoords()) {
+  for (const [gridOffset, itemCoord] of itemSize.rotatedSize(rotation).iterateCoordsAssoc(rotation)) {
     let newItem = new ItemRef(item, itemCoord, rotation)
-    let gridCoord = itemCoord.plus(coord)
+    let gridCoord = coord.plus(gridOffset)
     let oldItem = grid.getItemOrBag(item.isBag, gridCoord)
     if (oldItem != null) {
       let isOverlapping = oldItem.hasCollision(newItem) && newItem.hasCollision(oldItem)

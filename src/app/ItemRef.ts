@@ -14,6 +14,7 @@ export default class ItemRef {
   }
 
   public negativeMargins() {
-    return `-${5 * this.coord.y}em 0 0 -${5*this.coord.x}em`
+    const rotCoord = this.item.getSize().rotatedCoordInverse(this.coord, this.rotation)
+    return `-${5 * rotCoord.y}em 0 0 -${5 * rotCoord.x}em`
   }
 }

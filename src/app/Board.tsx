@@ -49,7 +49,10 @@ type BoardArgNullable = {
 
 const boardDragHandlersFactory: (_: DropHandler) => DragHandlersFactory = (onDrop) => (coord) => DragHandlers.mk({
   onPickup: null,
-  onDrop: e => { onDrop(e.droppedItem.item, coord.minus(e.droppedItem.coord), e.droppedItem.rotation) }
+  onDrop: e => { 
+    const actualPosition = coord.minus(e.droppedItem.item.getSize().rotatedCoordInverse(e.droppedItem.coord, e.droppedItem.rotation))
+    onDrop(e.droppedItem.item, actualPosition, e.droppedItem.rotation) 
+  }
 })
 
 export function BoardAsGrid({ board, boardId, onDrop, drawBoxOnNoCollision, dragHandlers }: BoardArgNullable) {
@@ -75,10 +78,11 @@ export function BoardAsGrid({ board, boardId, onDrop, drawBoxOnNoCollision, drag
   </div>)
 }
 
-export function RenderItemSolo(id: string, item: Item, dragHandlers: DragHandlersFactory) {
-  let grid = Grid.mk(item.getSize())
-  for (const coord of item.getSize().iterateCoords()) {
-    grid.setItem(coord, new ItemRef(item, coord, Rotations.UP))
+export function RenderItemSolo(id: string, item: Item, rotation: Rotation, dragHandlers: DragHandlersFactory) {
+  let s2 = item.getSize().rotatedSize(rotation)
+  let grid = Grid.mk(s2)
+  for (const [coord, itemCoord] of s2.iterateCoordsAssoc(rotation)) {
+    grid.setItem(coord, new ItemRef(item, itemCoord, rotation))
   }
 
   return <BoardAsGrid
@@ -120,6 +124,7 @@ export function renderImage(item: ItemRef, child: React.JSX.Element | null) {
       backgroundImage: `url("/Items/${item.item.filename}")`,
       backgroundSize: `${itemWidth}em ${itemHeight}em`,
       backgroundPosition: `-${5 * item.coord.x}em -${5 * item.coord.y}em`,
+      transform: `rotate(${item.rotation.cssString()})`
     }}>{child}</div>)
 }
 

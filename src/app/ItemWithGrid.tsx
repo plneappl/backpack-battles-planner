@@ -22,7 +22,7 @@ export default function ItemWithGrid(item: Item) {
     grid.setItem(coord, new ItemRef(item, coord, Rotations.UP))
   }
 
-  return RenderItemSolo("item-", item, (c) => DragHandlers.mk({
+  return RenderItemSolo("item-", item, Rotations.UP, (c) => DragHandlers.mk({
     onPickup: () => new ItemRef(item, c, Rotations.UP),
     onDrop: null
   }))
