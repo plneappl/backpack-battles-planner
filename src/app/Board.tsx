@@ -146,14 +146,7 @@ export function renderImage(id: string, item: ItemRef, child: React.JSX.Element 
 
 export function BoardSquareBorder(id: string, {onPickup, onDrop}: DragHandlers, coord: Coord, item: ItemRef | null, child: React.JSX.Element | null) {
   const subId = `${id}-item-grid-${coord.toKeyPart()}`;
-  const img = <div
-    key={subId}
-    className="wrapper"
-    style={{
-      border: '1px solid',
-      margin: "-0.5px",
-    }}>{child}</div>
-  let result = img
+  let result = child
   const dragId = 'drag-' + subId
   const dropId = 'drop-' + subId
   const { attributes, listeners, setNodeRef: setNodeRefDrag } = useDraggable({
@@ -175,7 +168,15 @@ export function BoardSquareBorder(id: string, {onPickup, onDrop}: DragHandlers, 
   if (onDrop != null) {
     result = (<div ref={setNodeRefDrop} key={dropId} className="wrapper">{result}</div>)
   }
-  return result
+  
+  const img = <div
+    key={subId}
+    className="wrapper"
+    style={{
+      border: '1px solid',
+      margin: "-0.5px",
+    }}>{result}</div>
+  return img
 }
 
 function* BoardGen(args: BoardArg) {
