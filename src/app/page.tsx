@@ -46,7 +46,7 @@ export default function Home() {
       collisionDetection={pointerWithin}
     >
       <Main dragPayload={dragPayload} setDraggedItem={setDraggedItem}/>
-      <DragOverlay className='wrapper'>
+      <DragOverlay className='wrapper' dropAnimation={null}>
         {dragPayload ? (<div style={{
           margin: dragPayload.item.negativeMargins()
         }}>
@@ -69,7 +69,7 @@ function Main({dragPayload, setDraggedItem}: MainArgs) {
         const item = dragPayload.item
         const nextRot = item.rotation.next()
         setDraggedItem({
-          item: new ItemRef(item.item, item.coord, nextRot)
+          item: new ItemRef(item.item, item.coord, nextRot, null)
         })
       }
     }
