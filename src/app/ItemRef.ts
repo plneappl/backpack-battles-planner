@@ -12,4 +12,8 @@ export default class ItemRef {
   public hasCollision(withOther: ItemRef | null) {
     return this.coord.getFrom(this.item.shape) && (withOther == null || this.item.isBag == withOther.item.isBag)
   }
+
+  public negativeMargins() {
+    return `-${5 * this.coord.y}em 0 0 -${5*this.coord.x}em`
+  }
 }

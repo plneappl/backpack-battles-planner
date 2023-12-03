@@ -26,8 +26,8 @@ export default class Coord extends Object {
     return `${this.x}-${this.y}`
   }
 
-  public getFrom<T>(arr: T[][]): T {
-    return arr[this.y][this.x]
+  public getFrom<T>(arr: T[][]): T | null {
+    return arr[this.y]?.[this.x]
   }
 
   public setIn<T>(arr: T[][], elem: T) {

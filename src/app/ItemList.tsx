@@ -11,9 +11,11 @@ export default function ItemList() {
 
 function SubItemList(description: string, items: Item[]) {
   let itemComponents = items.map(element => ItemWithGrid(element))
-  return <div>
-    <h1>{description}</h1><br/>
+  return <div
+    key={ "list-" + description.replaceAll(" ", "-") }
+  >
+    <h1>{description}</h1><br />
     <ul>
-    {itemComponents}
-  </ul></div>
+      {itemComponents}
+    </ul></div>
 }
