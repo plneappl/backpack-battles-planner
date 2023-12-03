@@ -45,7 +45,7 @@ type BoardArgNullable = {
   boardId: string,
   onDrop: (item: Item, coord: Coord, rotation: Rotation) => void,
   drawBoxOnNoCollision: boolean,
-  dragHandlers: DragHandlersFactory | null
+  dragHandlers: DragHandlersFactory | null,
 }
 
 const boardDragHandlersFactory: (grid: Grid, _: DropHandler) => DragHandlersFactory = (grid, onDrop) => (coord) => DragHandlers.mk({
@@ -89,7 +89,8 @@ export function BoardAsGrid({ board, boardId, onDrop, drawBoxOnNoCollision, drag
       onDrop={onDrop}
       boardId={boardId}
       drawBoxOnNoCollision={drawBoxOnNoCollision}
-      dragHandlers={dragHandlers ?? boardDragHandlersFactory(board, onDrop)}></Board>
+      dragHandlers={dragHandlers ?? boardDragHandlersFactory(board, onDrop)}
+    />
   </div>)
 }
 
@@ -144,7 +145,7 @@ export function renderImage(id: string, item: ItemRef, child: React.JSX.Element 
     }}>{child}</div>)
 }
 
-export function BoardSquareBorder(id: string, {onPickup, onDrop}: DragHandlers, coord: Coord, item: ItemRef | null, child: React.JSX.Element | null) {
+export function BoardSquareBorder(id: string, { onPickup, onDrop }: DragHandlers, coord: Coord, item: ItemRef | null, child: React.JSX.Element | null) {
   const subId = `${id}-item-grid-${coord.toKeyPart()}`;
   let result = child
   const dragId = 'drag-' + subId
@@ -168,13 +169,14 @@ export function BoardSquareBorder(id: string, {onPickup, onDrop}: DragHandlers, 
   if (onDrop != null) {
     result = (<div ref={setNodeRefDrop} key={dropId} className="wrapper">{result}</div>)
   }
-  
+
   const img = <div
     key={subId}
     className="wrapper"
     style={{
       border: '1px solid',
       margin: "-0.5px",
+      backgroundColor: "#FFFFFF90",
     }}>{result}</div>
   return img
 }
