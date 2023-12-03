@@ -80,7 +80,11 @@ function Main({dragPayload, setDraggedItem}: MainArgs) {
   })
 
   return <main className="flex min-h-screen flex-col items-center justify-between p-24 grid-container" style={{
-    gridTemplateColumns: "3fr 1fr"
+    gridTemplateColumns: "3fr 1fr",
+    backgroundImage: "url(/Background/Shop.jpg)",
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: '100% 100%',
+    justifyItems: "center"
   }}>
     <BoardAsGrid
       board={grid}
