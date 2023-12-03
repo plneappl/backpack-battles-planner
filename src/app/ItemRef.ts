@@ -1,10 +1,12 @@
 import Coord from "./Coord"
 import Item from "./Item"
+import Rotation from "./Rotation"
 
 export default class ItemRef {
   constructor(
     public item: Item,
-    public coord: Coord
+    public coord: Coord,
+    public rotation: Rotation
   ) { }
 
   public hasCollision(withOther: ItemRef | null) {

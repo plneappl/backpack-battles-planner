@@ -1,25 +1,28 @@
 import ItemRef from "./ItemRef";
 import Coord from "./Coord";
 import { useDrop } from "react-dnd";
-import { DragDropTypes } from "./DragDropTypes";
+import { DragDropPayload, DragDropTypes } from "./DragDropTypes";
 import Item from "./Item";
 import Grid from "./Grid";
+import Rotation from "./Rotation";
 
 type BoardArg = {
   board: Grid,
-  onDrop: (item: Item, coord: Coord) => void
+  onDrop: (item: Item, coord: Coord, rotation: Rotation) => void
 }
 
 function Board(args: BoardArg) {
   return [...BoardGen(args)]
 }
 
+type dragDropEffect = (coord: Coord) => any;
+
 function BoardSquare({ board, onDrop }: BoardArg, coord: Coord) {
   const [, drop] = useDrop(() => ({
     accept: DragDropTypes.ITEM,
     drop: (item, monitor) => {
-      console.log(`dropped ${item} / ${monitor.getItem()} at ${coord}`)
-      onDrop(item as Item, coord)
+      let payload = item as DragDropPayload
+      onDrop(payload.item.item, coord, payload.item.rotation)
     }
   }))
   let item = board.getItem(coord)

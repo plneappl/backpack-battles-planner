@@ -3,6 +3,7 @@ import Grid from "./Grid"
 import Item from "./Item"
 import { itemData } from "./ItemJson"
 import ItemRef from "./ItemRef"
+import Rotation from "./Rotation"
 import Size from "./Size"
 
 const rowCount = 7
@@ -22,7 +23,7 @@ export function observe(receive: (grid: Grid) => void) {
   emitChange()
 }
 
-export function setItem(item: Item, coord: Coord) {
+export function setItem(item: Item, coord: Coord, rotation: Rotation) {
   let grid = theGrid.copy()
   let itemSize = item.getSize()
   let itemBB = itemSize.plus(coord)
@@ -32,7 +33,7 @@ export function setItem(item: Item, coord: Coord) {
   }
 
   for (const itemCoord of iterateCoords(itemSize)) {
-    let newItem = new ItemRef(item, itemCoord)
+    let newItem = new ItemRef(item, itemCoord, rotation)
     let gridCoord = itemCoord.plus(coord)
     let oldItem = grid.getItemOrBag(item.isBag, gridCoord)
     if (oldItem != null) {

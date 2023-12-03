@@ -20,7 +20,7 @@ export default function Home() {
       }}>
         <BoardAsGrid
           board={grid}
-          onDrop={(item, coord) => setItem(item, coord)} />
+          onDrop={(item, coord, rotation) => setItem(item, coord, rotation)} />
         <ItemList />
       </main>
     </DndProvider>

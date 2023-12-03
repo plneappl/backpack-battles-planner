@@ -2,15 +2,15 @@ import React from 'react'
 import Item from './Item'
 import GridOfShape from './GridOfShape'
 import { useDrag } from 'react-dnd'
-import { DragDropTypes } from './DragDropTypes'
+import { DragDropPayload, DragDropTypes } from './DragDropTypes'
+import ItemRef from './ItemRef'
+import Coord from './Coord'
+import { Rotations } from './Rotation'
 
 export default function ItemWithGrid(item: Item) {
   const [, drag] = useDrag(() => ({
     type: DragDropTypes.ITEM,
-    item: item,
-    collect: (monitor) => ({
-      isDragging: !!monitor.isDragging()
-    })
+    item: new DragDropPayload(new ItemRef(item, new Coord(0, 0), Rotations.UP)),
   }))
 
   let columnCount = item.shape[0].length
