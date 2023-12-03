@@ -32,7 +32,7 @@ export function setItem(item: Item, coord: Coord, rotation: Rotation) {
     return
   }
 
-  for (const itemCoord of iterateCoords(itemSize)) {
+  for (const itemCoord of itemSize.iterateCoords()) {
     let newItem = new ItemRef(item, itemCoord, rotation)
     let gridCoord = itemCoord.plus(coord)
     let oldItem = grid.getItemOrBag(item.isBag, gridCoord)
@@ -53,18 +53,10 @@ export function setItem(item: Item, coord: Coord, rotation: Rotation) {
   emitChange()
 }
 
-function* iterateCoords({ width, height }: Size) {
-  for (let x = 0; x < width; x++) {
-    for (let y = 0; y < height; y++) {
-      yield new Coord(x, y)
-    }
-  }
-}
-
 function removeItem(grid: Grid, itemToRemove: ItemRef, coord: Coord, newItem: Item | null) {
   let itemSize = itemToRemove.item.getSize()
 
-  for (const itemCoord of iterateCoords(itemSize)) {
+  for (const itemCoord of itemSize.iterateCoords()) {
     let gridCoord = coord.minus(itemToRemove.coord).plus(itemCoord)
     let currentItem = grid.getItemOrBag(itemToRemove.item.isBag, gridCoord)
     if (currentItem == null) {
@@ -80,6 +72,5 @@ function removeItem(grid: Grid, itemToRemove: ItemRef, coord: Coord, newItem: It
 }
 
 function emitChange() {
-  console.log(`sending grind ${theGrid}`)
   observer(theGrid)
 }

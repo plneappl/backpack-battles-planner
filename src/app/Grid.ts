@@ -4,9 +4,10 @@ import Size from "./Size"
 
 export default class Grid {
   static mk(size: Size) {
-    return new Grid(createEmptyGrid(size), createEmptyGrid(size))
+    return new Grid(size, createEmptyGrid(size), createEmptyGrid(size))
   }
   constructor(
+    public size: Size,
     public items: (ItemRef | null)[][],
     public bags: (ItemRef | null)[][]
   ) { }
@@ -44,7 +45,7 @@ export default class Grid {
   }
 
   public copy() {
-    return new Grid([...this.items], [...this.bags])
+    return new Grid(this.size, [...this.items], [...this.bags])
   }
 }
 

@@ -29,4 +29,8 @@ export default class Item extends Object {
     let rowCount = this.shape.length
     return new Size(columnCount, rowCount)
   }
+
+  public imgUrl(): string {
+    return "/Items/" + this.filename
+  }
 }

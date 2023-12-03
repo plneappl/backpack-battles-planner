@@ -10,6 +10,6 @@ export default class ItemRef {
   ) { }
 
   public hasCollision(withOther: ItemRef | null) {
-    return this.coord.getFrom(this.item.shape) && withOther != null && this.item.isBag == withOther.item.isBag
+    return this.coord.getFrom(this.item.shape) && (withOther == null || this.item.isBag == withOther.item.isBag)
   }
 }

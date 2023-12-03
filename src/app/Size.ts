@@ -17,4 +17,12 @@ export default class Size extends Object {
   public isOutside(other: Size) {
     return this.width > other.width || this.height > other.height
   }
+
+  public * iterateCoords() {
+    for (let x = 0; x < this.width; x++) {
+      for (let y = 0; y < this.height; y++) {
+        yield new Coord(x, y)
+      }
+    }
+  }
 }
