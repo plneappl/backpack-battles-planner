@@ -117,16 +117,16 @@ function Board(args: BoardArg) {
 
 function BoardSquare({ board, boardId, drawBoxOnNoCollision }: BoardArg, coord: Coord, dragHandlers: DragHandlers) {
   let item = board.getItem(coord)
-  let itemImg = item != null ? renderImage(`${boardId}-item-${coord.toKeyPart()}`, item, null) : null
   let bag = board.getBag(coord)
-  let bagImg = bag != null ? renderImage(`${boardId}-bag-${coord.toKeyPart()}`, bag, itemImg) : itemImg
+  let itemImg = item != null ? renderImage(`${boardId}-item-${coord.toKeyPart()}`, item, bag?.rotation ?? Rotations.UP, null) : null
+  let bagImg = bag != null ? renderImage(`${boardId}-bag-${coord.toKeyPart()}`, bag, Rotations.UP, itemImg) : itemImg
   if (!!bag?.hasCollision(null) || !!item?.hasCollision(null) || drawBoxOnNoCollision) {
     return BoardSquareBorder(boardId, dragHandlers, coord, bag ?? item, bagImg)
   }
   return bagImg ?? <div key={`${boardId}-empty-${coord.toKeyPart()}`} />
 }
 
-export function renderImage(id: string, item: ItemRef, child: React.JSX.Element | null) {
+export function renderImage(id: string, item: ItemRef, outerRotate: Rotation, child: React.JSX.Element | null) {
   let columnCount = item.item.shape[0].length
   let rowCount = item.item.shape.length
 
@@ -141,7 +141,7 @@ export function renderImage(id: string, item: ItemRef, child: React.JSX.Element 
       backgroundImage: `url("/Items/${item.item.filename}")`,
       backgroundSize: `${itemWidth}em ${itemHeight}em`,
       backgroundPosition: `-${5 * item.coord.x}em -${5 * item.coord.y}em`,
-      transform: `rotate(${item.rotation.cssString()})`
+      transform: `rotate(${item.rotation.subtract(outerRotate).cssString()})`
     }}>{child}</div>)
 }
 
