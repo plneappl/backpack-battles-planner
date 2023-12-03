@@ -6,6 +6,7 @@ import Rotation, { Rotations } from "./Rotation";
 import React from "react";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { DragDropPayload } from "./DragDropTypes";
+import { emitChange, removeItem } from "./Game";
 
 type DropHandler = (item: Item, coord: Coord, rotation: Rotation) => void
 
@@ -47,11 +48,25 @@ type BoardArgNullable = {
   dragHandlers: DragHandlersFactory | null
 }
 
-const boardDragHandlersFactory: (_: DropHandler) => DragHandlersFactory = (onDrop) => (coord) => DragHandlers.mk({
-  onPickup: null,
-  onDrop: e => { 
+const boardDragHandlersFactory: (grid: Grid, _: DropHandler) => DragHandlersFactory = (grid, onDrop) => (coord) => DragHandlers.mk({
+  onPickup: () => {
+    const item = grid.getItem(coord)
+    if (item != null) {
+      removeItem(grid, item, coord, null)
+      emitChange()
+      return item
+    }
+    const bag = grid.getBag(coord)
+    if (bag != null) {
+      removeItem(grid, bag, coord, null)
+      emitChange()
+      return bag
+    }
+    return null
+  },
+  onDrop: e => {
     const actualPosition = coord.minus(e.droppedItem.item.getSize().rotatedCoordInverse(e.droppedItem.coord, e.droppedItem.rotation))
-    onDrop(e.droppedItem.item, actualPosition, e.droppedItem.rotation) 
+    onDrop(e.droppedItem.item, actualPosition, e.droppedItem.rotation)
   }
 })
 
@@ -59,7 +74,7 @@ export function BoardAsGrid({ board, boardId, onDrop, drawBoxOnNoCollision, drag
   let columnCount = board.items[0].length
   let rowCount = board.items.length
 
-  return (<div 
+  return (<div
     className="grid-container"
     key={boardId + "-grid"}
     style={{
@@ -74,7 +89,7 @@ export function BoardAsGrid({ board, boardId, onDrop, drawBoxOnNoCollision, drag
       onDrop={onDrop}
       boardId={boardId}
       drawBoxOnNoCollision={drawBoxOnNoCollision}
-      dragHandlers={dragHandlers ?? boardDragHandlersFactory(onDrop)}></Board>
+      dragHandlers={dragHandlers ?? boardDragHandlersFactory(board, onDrop)}></Board>
   </div>)
 }
 
@@ -82,7 +97,7 @@ export function RenderItemSolo(id: string, item: Item, rotation: Rotation, dragH
   let s2 = item.getSize().rotatedSize(rotation)
   let grid = Grid.mk(s2)
   for (const [coord, itemCoord] of s2.iterateCoordsAssoc(rotation)) {
-    grid.setItem(coord, new ItemRef(item, itemCoord, rotation))
+    grid.setItem(coord, new ItemRef(item, itemCoord, rotation, null))
   }
 
   return <BoardAsGrid
@@ -101,16 +116,16 @@ function Board(args: BoardArg) {
 
 function BoardSquare({ board, boardId, drawBoxOnNoCollision }: BoardArg, coord: Coord, dragHandlers: DragHandlers) {
   let item = board.getItem(coord)
-  let itemImg = item != null ? renderImage(item, null) : null
+  let itemImg = item != null ? renderImage(`${boardId}-item-${coord.toKeyPart()}`, item, null) : null
   let bag = board.getBag(coord)
-  let bagImg = bag != null ? renderImage(bag, itemImg) : itemImg
+  let bagImg = bag != null ? renderImage(`${boardId}-bag-${coord.toKeyPart()}`, bag, itemImg) : itemImg
   if (!!bag?.hasCollision(null) || !!item?.hasCollision(null) || drawBoxOnNoCollision) {
     return BoardSquareBorder(boardId, dragHandlers, coord, bag ?? item, bagImg)
   }
-  return bagImg ?? <div />
+  return bagImg ?? <div key={`${boardId}-empty-${coord.toKeyPart()}`} />
 }
 
-export function renderImage(item: ItemRef, child: React.JSX.Element | null) {
+export function renderImage(id: string, item: ItemRef, child: React.JSX.Element | null) {
   let columnCount = item.item.shape[0].length
   let rowCount = item.item.shape.length
 
@@ -119,6 +134,7 @@ export function renderImage(item: ItemRef, child: React.JSX.Element | null) {
 
   return (<div
     className="wrapper"
+    key={id}
     style={{
       backgroundColor: "transparent",
       backgroundImage: `url("/Items/${item.item.filename}")`,
@@ -128,7 +144,7 @@ export function renderImage(item: ItemRef, child: React.JSX.Element | null) {
     }}>{child}</div>)
 }
 
-export function BoardSquareBorder(id: string, dragHandlers: DragHandlers, coord: Coord, item: ItemRef | null, child: React.JSX.Element | null) {
+export function BoardSquareBorder(id: string, {onPickup, onDrop}: DragHandlers, coord: Coord, item: ItemRef | null, child: React.JSX.Element | null) {
   const subId = `${id}-item-grid-${coord.toKeyPart()}`;
   const img = <div
     key={subId}
@@ -138,38 +154,29 @@ export function BoardSquareBorder(id: string, dragHandlers: DragHandlers, coord:
       margin: "-0.5px",
     }}>{child}</div>
   let result = img
-  if (item != null && dragHandlers.onPickup != null) {
-    result = DraggableSquare(dragHandlers.onPickup, id, item, result)
-  }
-  if (dragHandlers.onDrop != null) {
-    result = DroppableSquare(dragHandlers.onDrop, subId, result)
-  }
-  return result
-}
-
-function DraggableSquare(onPickup: PickupHandler, id: string, item: ItemRef, child: React.JSX.Element | null) {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: 'drag-' + id + '-' + item.coord.toKeyPart(),
+  const dragId = 'drag-' + subId
+  const dropId = 'drop-' + subId
+  const { attributes, listeners, setNodeRef: setNodeRefDrag } = useDraggable({
+    id: dragId,
     data: {
       payload: onPickup,
     }
   })
-  const style = transform ? {
-    //transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-  } : undefined;
-  return (<div ref={setNodeRef} className="wrapper" style={style} {...listeners} {...attributes}>{child}</div>)
-}
-
-function DroppableSquare(onDrop: DropdownHandler, id: string, child: React.JSX.Element | null) {
-  const { isOver, setNodeRef } = useDroppable({
-    id: 'drop-' + id,
+  const { setNodeRef: setNodeRefDrop } = useDroppable({
+    id: dropId,
     data: {
       payload: onDrop
     }
   })
-  return (<div ref={setNodeRef} className="wrapper">{child}</div>)
-}
 
+  if (item != null && onPickup != null) {
+    result = (<div ref={setNodeRefDrag} key={dragId} className="wrapper" {...listeners} {...attributes}>{result}</div>)
+  }
+  if (onDrop != null) {
+    result = (<div ref={setNodeRefDrop} key={dropId} className="wrapper">{result}</div>)
+  }
+  return result
+}
 
 function* BoardGen(args: BoardArg) {
   for (const coord of args.board.size.iterateCoords()) {

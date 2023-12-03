@@ -19,11 +19,11 @@ export default function ItemWithGrid(item: Item) {
 
   let grid = Grid.mk(item.getSize())
   for (const coord of item.getSize().iterateCoords()) {
-    grid.setItem(coord, new ItemRef(item, coord, Rotations.UP))
+    grid.setItem(coord, new ItemRef(item, coord, Rotations.UP, null))
   }
 
-  return RenderItemSolo("item-", item, Rotations.UP, (c) => DragHandlers.mk({
-    onPickup: () => new ItemRef(item, c, Rotations.UP),
+  return RenderItemSolo("item-" + item.id, item, Rotations.UP, (c) => DragHandlers.mk({
+    onPickup: () => new ItemRef(item, c, Rotations.UP, null),
     onDrop: null
   }))
 } 
