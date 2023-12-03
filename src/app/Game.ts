@@ -2,12 +2,12 @@ import Coord from "./Coord"
 import Grid from "./Grid"
 import Item from "./Item"
 import { itemData } from "./ItemJson"
-import ItemRef from "./ItemRef"
+import ItemRef, { ItemRefCollection } from "./ItemRef"
 import Rotation from "./Rotation"
 import Size from "./Size"
 
 const rowCount = 7
-const columnCount = 8
+const columnCount = 9
 const boardSize = new Size(columnCount, rowCount)
 
 let observer: (grid: Grid) => void = (it) => { }
@@ -25,6 +25,7 @@ export function observe(receive: (grid: Grid) => void) {
 
 export function setItem(item: Item, coord: Coord, rotation: Rotation) {
   let grid = theGrid.copy()
+  let itemRefCollection = new ItemRefCollection()
   let itemSize = item.getSize()
   let itemBB = itemSize.plus(coord)
   if (itemBB.isOutside(boardSize)) {
@@ -33,7 +34,7 @@ export function setItem(item: Item, coord: Coord, rotation: Rotation) {
   }
 
   for (const [gridOffset, itemCoord] of itemSize.rotatedSize(rotation).iterateCoordsAssoc(rotation)) {
-    let newItem = new ItemRef(item, itemCoord, rotation)
+    let newItem = new ItemRef(item, itemCoord, rotation, itemRefCollection)
     let gridCoord = coord.plus(gridOffset)
     let oldItem = grid.getItemOrBag(item.isBag, gridCoord)
     if (oldItem != null) {
@@ -54,19 +55,12 @@ export function setItem(item: Item, coord: Coord, rotation: Rotation) {
 }
 
 function removeItem(grid: Grid, itemToRemove: ItemRef, coord: Coord, newItem: Item | null) {
-  let itemSize = itemToRemove.item.getSize()
+  const itemRefs = new Set<ItemRef | null>(itemToRemove.itemRefCollection?.refs ?? [])
+  const isBag = itemToRemove.item.isBag
 
-  for (const itemCoord of itemSize.iterateCoords()) {
-    let gridCoord = coord.minus(itemToRemove.coord).plus(itemCoord)
-    let currentItem = grid.getItemOrBag(itemToRemove.item.isBag, gridCoord)
-    if (currentItem == null) {
-      continue
-    }
-    if (newItem != null && currentItem.item.id == newItem.id && Coord.equals(currentItem.coord, itemCoord)) {
-      grid.setItemOrBag(itemToRemove.item.isBag, gridCoord, null)
-    }
-    else if (currentItem.item.id == itemToRemove.item.id) {
-      grid.setItemOrBag(itemToRemove.item.isBag, gridCoord, null)
+  for (const coord of grid.size.iterateCoords()) {
+    if(itemRefs.has(grid.getItemOrBag(isBag, coord))) {
+      grid.setItemOrBag(isBag, coord, null)
     }
   }
 }
