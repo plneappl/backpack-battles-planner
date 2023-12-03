@@ -8,7 +8,6 @@
     {"id": 29, "filename": "ClawsofAttack.png", "isBag": false, "shape": [[true, true]]},
     {"id": 31, "filename": "CritwoodStaff.png", "isBag": false, "shape": [[true], [true], [true], [true]]},
     {"id": 32, "filename": "Crossblades.png", "isBag": false, "shape": [[false, true, false], [true, true, true], [false, true, false]]},
-    {"id": 33, "filename": "CursedDagger.png", "isBag": false, "shape": [[true], [true]]},
     {"id": 35, "filename": "Dagger.png", "isBag": false, "shape": [[true], [true]]},
     {"id": 37, "filename": "Darksaber.png", "isBag": false, "shape": [[true], [true], [true], [true]]},
     {"id": 38, "filename": "DeathScythe.png", "isBag": false, "shape": [[true, true, true], [true, false, false], [true, false, false], [true, false, false], [true, false, false]]},
@@ -130,12 +129,13 @@
     {"id": 23, "filename": "CarrotGoobert.png", "isBag": false, "shape": [[true, true], [true, true]]},
     {"id": 63, "filename": "Goobert.png", "isBag": false, "shape": [[true, true], [true, true]]},
     {"id": 77, "filename": "LightGoobert.png", "isBag": false, "shape": [[true, true], [true, true]]},
-    {"id": 101, "filename": "PoisonGoobert.png", "isBag": false, "shape": [[true]]},
+    {"id": 101, "filename": "PoisonGoobert.png", "isBag": false, "shape": [[true, true], [true, true]]},
     {"id": 106, "filename": "Rainbow Goobert Megasludge Alphapuddle.png", "isBag": false, "shape": [[true, true], [true, true]]},
     {"id": 110, "filename": "RainbowGoobert.png", "isBag": false, "shape": [[true, true], [true, true]]},
     {"id": 128, "filename": "SteelGoobert.png", "isBag": false, "shape": [[true, true], [true, true]]}
   ],
   "class": [
+    {"id": 33, "filename": "CursedDagger.png", "isBag": false, "shape": [[true], [true]]},
     {"id": 86, "filename": "MrStruggles.png", "isBag": false, "shape": [[true], [true]]},
     {"id": 87, "filename": "NocturnalLockLifter.png", "isBag": false, "shape": [[true]]},
     {"id": 96, "filename": "PiercingArrow.png", "isBag": false, "shape": [[true, true]]},
