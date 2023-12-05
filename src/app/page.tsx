@@ -1,16 +1,29 @@
 "use client"
 import { BoardAsGrid, BoardSquareBorder, DragHandlers, DropdownHandler, PickupHandler, RenderItemSolo, renderImage } from './Board'
-import { observe, setItem, getGrid } from './Game'
+import { observe, setItem, getGrid, moveItems } from './Game'
 import { useEffect, useState } from 'react'
 import ItemList from './ItemList'
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, pointerWithin } from '@dnd-kit/core'
 import { DragDropPayload } from './DragDropTypes'
 import Coord from './Coord'
 import ItemRef from './ItemRef'
+import { Directions } from './Direction'
 
 const keys = {
   KEY_R: {
     key: 'R'
+  },
+  KEY_RIGHT: {
+    key: 'ArrowRight'
+  },
+  KEY_DOWN: {
+    key: 'ArrowDown'
+  },
+  KEY_LEFT: {
+    key: 'ArrowLeft'
+  },
+  KEY_UP: {
+    key: 'ArrowUp'
   }
 }
 
@@ -71,6 +84,14 @@ function Main({dragPayload, setDraggedItem}: MainArgs) {
         setDraggedItem({
           item: new ItemRef(item.item, item.coord, nextRot, null)
         })
+      } else if(key == keys.KEY_UP.key) {
+        moveItems(Directions.UP)
+      } else if(key == keys.KEY_RIGHT.key) {
+        moveItems(Directions.RIGHT)
+      } else if(key == keys.KEY_DOWN.key) {
+        moveItems(Directions.DOWN)
+      } else if(key == keys.KEY_LEFT.key) {
+        moveItems(Directions.LEFT)
       }
     }
     window.addEventListener('keydown', keyEventListener)

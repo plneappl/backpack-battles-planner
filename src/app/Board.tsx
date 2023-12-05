@@ -52,13 +52,13 @@ const boardDragHandlersFactory: (grid: Grid, _: DropHandler) => DragHandlersFact
   onPickup: () => {
     const item = grid.getItem(coord)
     if (item != null) {
-      removeItem(grid, item, coord, null)
+      removeItem(grid, item)
       emitChange()
       return item
     }
     const bag = grid.getBag(coord)
     if (bag != null) {
-      removeItem(grid, bag, coord, null)
+      removeItem(grid, bag)
       emitChange()
       return bag
     }

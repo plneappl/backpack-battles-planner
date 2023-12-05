@@ -1,4 +1,5 @@
 import Coord from "./Coord"
+import Direction from "./Direction"
 import Grid from "./Grid"
 import Item from "./Item"
 import { itemData } from "./ItemJson"
@@ -25,6 +26,10 @@ export function observe(receive: (grid: Grid) => void) {
 
 export function setItem(item: Item, coord: Coord, rotation: Rotation) {
   let grid = theGrid.copy()
+  setItemImpl(grid, item, coord, rotation)
+  emitChange()
+}
+function setItemImpl(grid: Grid, item: Item, coord: Coord, rotation: Rotation) {
   let itemRefCollection = new ItemRefCollection()
   let itemSize = item.getSize().rotatedSize(rotation)
   let itemBB = itemSize.plus(coord)
@@ -42,7 +47,7 @@ export function setItem(item: Item, coord: Coord, rotation: Rotation) {
       let isDifferentItem = oldItem.item.id != newItem.item.id
       let isDifferentRelativeCoord = !Coord.equals(oldItem.coord, itemCoord)
       if (isOverlapping && (isDifferentItem || isDifferentRelativeCoord)) {
-        removeItem(grid, oldItem, gridCoord, item)
+        removeItem(grid, oldItem)
       }
     }
     oldItem = grid.getItemOrBag(item.isBag, gridCoord)
@@ -51,10 +56,9 @@ export function setItem(item: Item, coord: Coord, rotation: Rotation) {
     }
   }
   theGrid = grid
-  emitChange()
 }
 
-export function removeItem(grid: Grid, itemToRemove: ItemRef, coord: Coord, newItem: Item | null) {
+export function removeItem(grid: Grid, itemToRemove: ItemRef, ) {
   const itemRefs = new Set<ItemRef | null>(itemToRemove.itemRefCollection?.refs ?? [])
   const isBag = itemToRemove.item.isBag
 
@@ -67,4 +71,32 @@ export function removeItem(grid: Grid, itemToRemove: ItemRef, coord: Coord, newI
 
 export function emitChange() {
   observer(theGrid)
+}
+
+export function moveItems(direction: Direction) {
+  let oldGrid = theGrid.copy()
+  let grid = Grid.mk(boardSize)
+  for (const oldGridCoord of oldGrid.size.iterateCoords()) {
+    const newCoord = oldGridCoord.plus(direction.coord)
+    let bag = oldGrid.getBag(oldGridCoord)
+    if(bag != null) {
+      if(newCoord.isOutside(boardSize)) {
+        removeItem(oldGrid, bag)
+        removeItem(grid, bag)
+      } else {
+        grid.setBag(newCoord, bag)
+      }
+    }
+    let item = oldGrid.getItem(oldGridCoord)
+    if(item != null) {
+      if(newCoord.isOutside(boardSize)) {
+        removeItem(oldGrid, item)
+        removeItem(grid, item)
+      } else {
+        grid.setItem(newCoord, item)
+      }
+    }
+  }
+  theGrid = grid
+  emitChange()
 }

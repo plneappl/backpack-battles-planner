@@ -1,3 +1,4 @@
+import Size from "./Size"
 
 interface ICoord {
   x: number
@@ -40,5 +41,9 @@ export default class Coord extends Object {
 
   public minus(other: Coord) {
     return new Coord(this.x - other.x, this.y - other.y)
+  }
+
+  public isOutside(area: Size) {
+    return this.x < 0 || this.y < 0 || this.x >= area.width || this.y >= area.height
   }
 }
